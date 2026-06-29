@@ -1,7 +1,7 @@
 {
 	"scripts": {
-		"deploy": "wrangler pages deploy . --project-name=weixin",
-		"kv:create": "wrangler kv namespace create WEIXIN_ARTICLES",
+		"deploy": "wrangler pages deploy . --project-name=article-preview-system",
+		"kv:create": "wrangler kv namespace create ARTICLE_PREVIEW_KV",
 		"kv:list": "wrangler kv namespace list"
 	},
 	"devDependencies": {

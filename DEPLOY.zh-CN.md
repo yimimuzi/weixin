@@ -33,7 +33,7 @@ Root directory: /
 8. 创建 KV 命名空间，名称建议为：
 
 ```text
-WEIXIN_ARTICLES
+ARTICLE_PREVIEW_KV
 ```
 
 9. 在 Pages 项目的 Settings 中绑定 KV。
@@ -41,7 +41,7 @@ WEIXIN_ARTICLES
 绑定变量名必须是：
 
 ```text
-WEIXIN_ARTICLES
+ARTICLE_PREVIEW_KV
 ```
 
 10. 重新部署项目。
@@ -70,7 +70,7 @@ npm run kv:create
 
 ```toml
 [[kv_namespaces]]
-binding = "WEIXIN_ARTICLES"
+binding = "ARTICLE_PREVIEW_KV"
 id = "这里填写你的 KV namespace id"
 ```
 
@@ -94,7 +94,7 @@ npm run deploy
 
 ### 上传 Word 后无法保存
 
-检查 Cloudflare Pages 是否绑定了 KV，变量名必须是 `WEIXIN_ARTICLES`。
+检查 Cloudflare Pages 是否绑定了 KV，变量名必须是 `ARTICLE_PREVIEW_KV`。
 
 ### 图片上传后无法显示
 

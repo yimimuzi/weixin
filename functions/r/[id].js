@@ -1,4 +1,4 @@
-<!doctype html>
+const html = `<!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
@@ -24,4 +24,13 @@
   <script src="/site.js?v=20260629-preserve-space1"></script>
   <script>WechatSite.renderClientPage(document.getElementById('clientArticle'));</script>
 </body>
-</html>
+</html>`;
+
+export async function onRequestGet() {
+  return new Response(html, {
+    headers: {
+      "content-type": "text/html; charset=utf-8",
+      "cache-control": "no-store",
+    },
+  });
+}

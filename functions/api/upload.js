@@ -8,6 +8,8 @@ function json(data, status = 200) {
   });
 }
 
+const TTL_SECONDS = 7 * 24 * 60 * 60;
+
 function extFromType(type) {
   if (type === "image/png") return "png";
   if (type === "image/webp") return "webp";
@@ -28,8 +30,9 @@ export async function onRequestPost({ request, env }) {
 
   const id = `${Date.now()}-${crypto.randomUUID()}.${extFromType(file.type)}`;
   const key = `uploads/${id}`;
-  await env.WEIXIN_ARTICLES.put(key, await file.arrayBuffer(), {
+  await env.ARTICLE_PREVIEW_KV.put(key, await file.arrayBuffer(), {
     metadata: { contentType: file.type },
+    expirationTtl: TTL_SECONDS,
   });
 
   return json({ ok: true, src: `/uploads/${id}` });

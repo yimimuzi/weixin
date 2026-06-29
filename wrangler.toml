@@ -1,7 +1,7 @@
-name = "wechat-preview"
+name = "article-preview-system"
 compatibility_date = "2026-06-29"
 pages_build_output_dir = "."
 
 [[kv_namespaces]]
-binding = "WEIXIN_ARTICLES"
-id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+binding = "ARTICLE_PREVIEW_KV"
+id = "replace_with_your_kv_namespace_id"

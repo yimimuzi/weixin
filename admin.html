@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f6f1ea">
-  <title>管理员后台</title>
+  <title>文章管理系统</title>
   <style>
-    :root { --bg:#f7f2ea; --paper:#fff; --ink:#2b2b2b; --muted:#7a6a5e; --accent:#9e1f1f; --line:rgba(126,31,31,.12); }
+    :root { --bg:#f7f2ea; --paper:#fff; --ink:#2b2b2b; --muted:#7a6a5e; --accent:#9e1f1f; --accent-soft:#fff7f0; --line:rgba(126,31,31,.12); }
     * { box-sizing:border-box; }
     html, body { margin:0; padding:0; background:var(--bg); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue','PingFang SC','Microsoft YaHei',Arial,sans-serif; }
     .shell { max-width:1280px; margin:0 auto; padding:18px 14px 40px; }
@@ -15,12 +15,13 @@
     .actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
     button, select { font-size:14px; border-radius:6px; }
     button { appearance:none; border:0; padding:10px 14px; cursor:pointer; }
+    button:disabled { cursor:not-allowed; opacity:.68; }
     .primary { background:var(--accent); color:#fff; }
     .secondary { background:#fff; color:var(--accent); border:1px solid rgba(158,31,31,.25); }
     .template-row { display:flex; gap:8px; align-items:center; }
     .template-row select { flex:1; }
     .template-row button { flex:0 0 auto; padding:10px 11px; }
-    .layout { display:grid; grid-template-columns: 300px minmax(0,1fr) 380px; gap:16px; margin-top:18px; align-items:start; }
+    .layout { display:grid; grid-template-columns: 300px minmax(0,1fr) 400px; gap:16px; margin-top:18px; align-items:start; }
     .panel { background:var(--paper); border-radius:8px; box-shadow:0 1px 0 rgba(0,0,0,.03); overflow:hidden; }
     .side, .main { padding:16px; }
     .side h2, .main h2 { margin:0 0 12px; color:var(--accent); font-size:18px; }
@@ -33,15 +34,42 @@
     input[type="file"] { padding:8px; }
     textarea { min-height:88px; resize:vertical; }
     #editBody { min-height:260px; }
+    .hidden-editor-fields { display:none; }
     body.editing-inline .preview { box-shadow:0 0 0 3px rgba(158,31,31,.2); }
     [contenteditable="true"] { outline:1px dashed rgba(158,31,31,.55); outline-offset:3px; cursor:text; background:rgba(255,247,240,.72); -webkit-user-modify:read-write; user-select:text; }
     [contenteditable="true"]:hover { outline:2px solid rgba(158,31,31,.45); }
     [contenteditable="true"]:focus { outline:2px solid rgba(158,31,31,.7); background:#fff7f0; }
-    #status { margin-top:10px; color:#215c33; font-size:13px; min-height:1.4em; }
+    #status { margin-top:10px; padding:10px 12px; color:#215c33; background:#f3faf3; border:1px solid #d8ead8; border-radius:6px; font-size:13px; line-height:1.6; min-height:1.4em; }
+    .editor-head { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:12px; }
+    .editor-head h2 { margin:0; }
+    .editor-note { margin:0; color:var(--muted); font-size:13px; line-height:1.6; }
+    .editor-section { padding:14px 0 16px; border-top:1px solid var(--line); }
+    .editor-section:first-of-type { border-top:0; padding-top:0; }
+    .section-title { display:flex; align-items:center; gap:8px; margin:0 0 10px; color:var(--accent); font-size:15px; font-weight:800; }
+    .section-title span { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:var(--accent-soft); color:var(--accent); font-size:12px; }
+    .section-copy { margin:8px 0 0; color:var(--muted); font-size:12px; line-height:1.7; }
+    .action-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; }
+    .action-grid button { width:100%; padding:10px 8px; }
+    .wide-action { width:100%; margin-top:8px; }
+    .switch-line { display:flex; align-items:center; gap:8px; margin:10px 0 0; padding:9px 10px; background:#fffaf6; border:1px solid #eadbd2; border-radius:6px; color:var(--accent); font-size:13px; font-weight:700; }
+    .switch-line input { width:auto; }
+    details.editor-section { padding:0; }
+    details.editor-section summary { list-style:none; cursor:pointer; padding:14px 0; border-top:1px solid var(--line); color:var(--accent); font-size:15px; font-weight:800; }
+    details.editor-section summary::-webkit-details-marker { display:none; }
+    details.editor-section summary::after { content:"展开"; float:right; color:var(--muted); font-size:12px; font-weight:400; }
+    details.editor-section[open] summary::after { content:"收起"; }
+    .details-body { padding:0 0 16px; }
     .login { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
     .login-box { width:min(360px,100%); background:#fff; border:1px solid var(--line); border-radius:8px; padding:22px; }
     .login-box h1 { margin:0 0 12px; color:var(--accent); font-size:20px; }
     .login-box p { margin:0 0 14px; }
+    .confirm-mask { position:fixed; inset:0; z-index:1000; display:flex; align-items:center; justify-content:center; padding:20px; background:rgba(40,32,28,.42); }
+    .confirm-dialog { width:min(380px,100%); background:#fff; border:1px solid rgba(126,31,31,.18); border-radius:8px; padding:20px; box-shadow:0 18px 60px rgba(30,20,16,.22); }
+    .confirm-title { margin:0 0 10px; color:var(--accent); font-size:18px; font-weight:800; line-height:1.4; }
+    .confirm-message { margin:0; color:var(--ink); font-size:14px; line-height:1.8; }
+    .confirm-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:18px; }
+    .published-box { display:none; margin-top:10px; padding:10px 12px; border:1px solid #d8ead8; border-radius:6px; background:#f3faf3; color:#215c33; font-size:13px; line-height:1.7; word-break:break-all; }
+    .published-box a { color:#1f6c38; font-weight:700; }
     @media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -49,12 +77,11 @@
   <div class="shell" id="adminShell">
     <div class="topbar">
       <div>
-        <div class="brand">管理员后台</div>
+        <div class="brand">文章管理系统</div>
         <div class="hint">这里保留文章切换、复制和后续扩展入口，客户不会看到这页。</div>
       </div>
       <div class="actions">
-        <button class="secondary" id="toggleInlineEditBtn">文章文字可直接编辑</button>
-        <button class="primary" id="topSaveOnlineBtn">保存线上</button>
+        <button class="primary" id="topSaveOnlineBtn">保存并生成客户链接</button>
         <button class="secondary" id="copyLinkBtn">复制客户链接</button>
         <button class="secondary" id="copyHtmlBtn">复制公众号排版</button>
         <button class="secondary" id="copyTextBtn">复制纯文本</button>
@@ -69,94 +96,99 @@
 
       <main class="panel main">
         <h2>当前预览</h2>
-        <p class="hint">文章内编辑默认开启。直接点击文章文字修改，改完点“保存线上”，客户刷新即可看到。</p>
+        <p class="hint">文章内编辑默认开启。直接点击文章文字修改，保存后客户预览页同步更新。</p>
         <select id="articleSelect"></select>
         <div class="preview" id="adminPreview" style="margin-top:16px;"></div>
       </main>
 
-      <aside class="panel side">
-        <h2>编辑</h2>
-        <p class="hint">常规文字直接在中间文章内修改；这里适合调整图片路径、段落结构和落款。</p>
-        <label for="templateSelect">排版风格</label>
-        <div class="template-row">
-          <button class="secondary" id="prevTemplateBtn" title="上一款">上一款</button>
-          <select id="templateSelect"></select>
-          <button class="secondary" id="nextTemplateBtn" title="下一款">下一款</button>
+      <aside class="panel side editor-panel">
+        <div class="editor-head">
+          <div>
+            <h2>编辑工作台</h2>
+            <p class="editor-note">文字和图片可直接在中间预览里改；右侧只保留上传、样式、图片和保存。</p>
+          </div>
         </div>
-        <div class="actions" style="justify-content:flex-start;margin-top:8px;">
-          <button class="secondary" id="autoTemplateBtn">自动匹配风格</button>
-          <button class="secondary" id="applyTemplateBtn">应用当前风格</button>
+
+        <section class="editor-section">
+          <div class="section-title"><span>1</span>上传 Word</div>
+          <input id="wordUploadInput" type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" multiple>
+          <button class="primary wide-action" id="generateWordBtn">生成并保存文章</button>
+          <p class="section-copy">一个 Word 对应一篇文章；上传后会直接生成客户预览链接。</p>
+        </section>
+
+        <section class="editor-section">
+          <div class="section-title"><span>2</span>样式与排版</div>
+          <label for="templateSelect">学校风格</label>
+          <div class="template-row">
+            <button class="secondary" id="prevTemplateBtn" title="上一款">上一款</button>
+            <select id="templateSelect"></select>
+            <button class="secondary" id="nextTemplateBtn" title="下一款">下一款</button>
+          </div>
+          <div class="action-grid">
+            <button class="secondary" id="autoTemplateBtn">自动匹配</button>
+            <button class="secondary" id="randomTemplateBtn">换风格</button>
+          </div>
+          <button class="secondary wide-action" id="applyTemplateBtn">应用当前风格</button>
+
+          <label for="layoutSelect">排版结构</label>
+          <div class="template-row">
+            <select id="layoutSelect"></select>
+            <button class="secondary" id="randomLayoutBtn">换排版</button>
+          </div>
+
+          <label for="fontSizeSelect">选中文字字号</label>
+          <select id="fontSizeSelect"></select>
+
+          <label class="switch-line">
+            <input id="decoratedToggle" type="checkbox" checked>
+            开启公众号稳定装饰
+          </label>
+
+          <label for="decorationSelect">美化方案</label>
+          <div class="template-row">
+            <select id="decorationSelect"></select>
+            <button class="secondary" id="randomDecorationBtn">换一款</button>
+          </div>
+          <p class="section-copy">只改变样式，不主动改文字和图片；保存后客户页面同步更新。</p>
+        </section>
+
+        <section class="editor-section">
+          <div class="section-title"><span>3</span>图片处理</div>
+          <input id="imageUploadInput" type="file" accept="image/*" multiple>
+          <div class="action-grid">
+            <button class="secondary" id="uploadImageBtn">上传图片</button>
+            <button class="secondary" id="insertImageBtn">插入图片</button>
+            <button class="secondary" id="insertImageGroupBtn">插入图片组</button>
+            <button class="secondary" id="replaceImageBtn">替换选中</button>
+          </div>
+          <button class="secondary wide-action" id="deleteImageBtn">删除选中图片</button>
+          <label for="uploadedImagePath">图片路径</label>
+          <textarea id="uploadedImagePath" placeholder="上传后会显示路径；也可在正文光标位置插入图片。"></textarea>
+          <p class="section-copy">选中中间预览里的图片后可插入或替换；未选中时会追加到文章末尾。多张图片会自动拆成 2 图、4 图、9 宫格。</p>
+        </section>
+
+        <div class="hidden-editor-fields" aria-hidden="true">
+          <input id="editTitle" tabindex="-1">
+          <textarea id="editSubtitle" tabindex="-1"></textarea>
+          <textarea id="editIntro" tabindex="-1"></textarea>
+          <textarea id="editBody" tabindex="-1"></textarea>
+          <textarea id="editClosing" tabindex="-1"></textarea>
+          <textarea id="editFooter" tabindex="-1"></textarea>
+          <button type="button" id="applyEditBtn" tabindex="-1">更新预览</button>
         </div>
-        <label for="layoutSelect">默认排版变化</label>
-        <div class="template-row">
-          <select id="layoutSelect"></select>
-          <button class="secondary" id="randomLayoutBtn">换排版</button>
-        </div>
-        <p class="hint">排版变化控制标题、栏目、段落、图片和落款结构；风格控制颜色和学校内容气质。</p>
-        <label style="display:flex;gap:8px;align-items:center;margin-top:10px;color:var(--accent);font-size:13px;font-weight:700;">
-          <input id="decoratedToggle" type="checkbox" checked style="width:auto;">
-          开启公众号稳定装饰
-        </label>
-        <label for="decorationSelect">美化方案</label>
-        <div class="template-row">
-          <select id="decorationSelect"></select>
-          <button class="secondary" id="randomDecorationBtn">换一款</button>
-        </div>
-        <p class="hint">默认开启。装饰只使用公众号复制后更容易保留的线条、圆点、色块和边框。</p>
-        <p class="hint">这里提供 20 多种学校公众号模板。切换后只改变排版风格，不改文字和图片；保存线上后客户才会看到。</p>
 
-        <label for="wordUploadInput">Word 自动排版</label>
-        <input id="wordUploadInput" type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" multiple>
-        <div class="actions" style="justify-content:flex-start;margin-top:8px;">
-          <button class="primary" id="generateWordBtn">上传 Word 生成文章</button>
-        </div>
-        <p class="hint">一个 Word 会生成一篇文章；同时选择多个 Word 时，会按选择顺序生成 /1/、/2/、/3/。系统只做排版和模板选择，不改原文文字和图片。</p>
-
-        <label for="imageUploadInput">图片</label>
-        <input id="imageUploadInput" type="file" accept="image/*" multiple>
-        <div class="actions" style="justify-content:flex-start;margin-top:8px;">
-          <button class="secondary" id="uploadImageBtn">上传图片</button>
-        </div>
-        <label for="uploadedImagePath">图片路径</label>
-        <textarea id="uploadedImagePath" placeholder="上传后自动生成；多张图片会一行一个路径。复制路径到“正文和图片”的两段文字中间即可显示图片。"></textarea>
-        <div class="actions" style="justify-content:flex-start;margin-top:8px;">
-          <button class="secondary" id="insertImageBtn">选择并插入图片</button>
-          <button class="secondary" id="insertImageGroupBtn">选择并插入图片组</button>
-          <button class="secondary" id="replaceImageBtn">替换选中图片</button>
-          <button class="secondary" id="deleteImageBtn">删除选中图片</button>
-        </div>
-        <p class="hint">在“正文和图片”里把光标放到要插入的位置，再点“选择并插入图片”，图片会自动插入到光标处。</p>
-
-        <label for="editTitle">标题</label>
-        <input id="editTitle">
-
-        <label for="editSubtitle">副标题</label>
-        <textarea id="editSubtitle"></textarea>
-
-        <label for="editIntro">开头导语</label>
-        <textarea id="editIntro"></textarea>
-
-        <label for="editBody">正文和图片</label>
-        <textarea id="editBody"></textarea>
-        <p class="hint">小标题格式：## 01 小标题。图片路径单独一行即可显示，如 /uploads/xxx.png；不需要额外写 [图片]。</p>
-
-        <label for="editClosing">结尾段落</label>
-        <textarea id="editClosing"></textarea>
-
-        <label for="editFooter">落款信息</label>
-        <textarea id="editFooter"></textarea>
-
-        <div class="actions" style="justify-content:flex-start;margin-top:12px;">
-          <button class="secondary" id="applyEditBtn">更新预览</button>
-          <button class="primary" id="saveOnlineBtn">保存线上</button>
-        </div>
-        <p class="hint">当前批次文章按列表顺序生成 /1/、/2/、/3/。下一次换一批文章时可以重新从 1 开始。</p>
-        <div id="status"></div>
+        <section class="editor-section">
+          <div class="section-title"><span>4</span>保存</div>
+          <button class="primary wide-action" id="saveOnlineBtn">保存并生成客户链接</button>
+          <p class="section-copy">保存后客户刷新预览链接即可看到新版；链接会在左侧文章列表显示。</p>
+          <div class="published-box" id="publishedBox"></div>
+          <div id="status"></div>
+        </section>
       </aside>
     </div>
   </div>
-  <script src="/articles.js?v=20260629-layout-decor1"></script>
-  <script src="/site.js?v=20260629-layout-decor1"></script>
+  <script src="/articles.js?v=20260629-preserve-space1"></script>
+  <script src="/site.js?v=20260629-preserve-space1"></script>
   <script>
     WechatSite.renderAdminPage(
       document.getElementById('adminPreview'),

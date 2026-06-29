@@ -74,7 +74,7 @@ DEPLOY.zh-CN.md
 部署到 Cloudflare Pages：
 
 ```bash
-npx wrangler pages deploy . --project-name=weixin
+npx wrangler pages deploy . --project-name=article-preview-system
 ```
 
 自定义域名请在 Cloudflare Pages 后台绑定。
